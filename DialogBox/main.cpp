@@ -39,24 +39,18 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			CONST INT SIZE = 256;
 			CHAR sz_buffer[SIZE] = {};
-			HWND heditLogin = GetDlgItem(hwnd, IDC_EDIT_LOGIN);
+			//HWND heditLogin = GetDlgItem(hwnd, IDC_EDIT_LOGIN);
 			//hwnd - родительское окно;
 			// IDC_EDIT_LOGIN - ResourceID элемента, дискриптор которого мы хотим получить;
-			SendMessage(heditLogin, WM_GETTEXT, SIZE, (LPARAM)sz_buffer);
-			if (HIWORD(wParam) == EN_SETFOCUS)
-			{
-				if (strcmp(sz_buffer, g_sz_INVITE) == 0)
-				{
-					SendMessage(heditLogin, WM_SETTEXT, 0, (LPARAM)"");
-				}
-			}
-			if (HIWORD(wParam) == EN_KILLFOCUS)
-			{
-				if (strcmp(sz_buffer, "") == 0)
-				{
-					SendMessage(heditLogin, WM_SETTEXT, 0, (LPARAM)g_sz_INVITE);
-				}
-			}
+			SendMessage((HWND)lParam, WM_GETTEXT, SIZE, (LPARAM)sz_buffer);
+			if (HIWORD(wParam) == EN_SETFOCUS && strcmp(sz_buffer, g_sz_INVITE) == 0)
+				SendMessage((HWND)lParam, WM_SETTEXT, 0, (LPARAM)"");
+				//SendMessage(heditLogin, WM_SETTEXT, 0, (LPARAM)"");
+
+			if (HIWORD(wParam) == EN_KILLFOCUS && strcmp(sz_buffer, "") == 0)
+				SendMessage((HWND)lParam, WM_SETTEXT, 0, (LPARAM)g_sz_INVITE);
+				//SendMessage(heditLogin, WM_SETTEXT, 0, (LPARAM)g_sz_INVITE);
+
 		}
 		break;
 		case IDC_BUTTON_COPY:
