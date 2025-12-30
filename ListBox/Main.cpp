@@ -36,6 +36,21 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case IDC_BUTTON_ADD:
 		{
 			DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_ADD), hwnd, (DLGPROC)DlgProcADD, 0);
+			break;
+		}
+		case IDC_BUTTON_DELETE:
+		{
+			HWND hList = GetDlgItem(hwnd, IDC_LIST);
+			INT i = SendMessage(hList, LB_GETCURSEL, 0, 0);
+			if (i != LB_ERR)
+			{
+				SendMessage(hList, LB_DELETESTRING, (WPARAM)i, 0);
+			}
+			else
+			{
+				MessageBox(hwnd, TEXT("Пожалуйста, выберите элемент для удаления!"), TEXT("Внимание"), MB_OK | MB_ICONWARNING);
+			}
+			break;
 		}
 		case IDCANCEL:EndDialog(hwnd, 0);
 			break;
@@ -79,7 +94,7 @@ BOOL CALLBACK DlgProcADD(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				MessageBox(hwnd, "Такой элемент уже добавлен", "Info", MB_OK | MB_ICONINFORMATION);
 				break;
 			}
-		}
+		}		
 		case IDCANCEL: EndDialog(hwnd, 0);
 		}
 		break;
