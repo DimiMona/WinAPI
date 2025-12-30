@@ -1,5 +1,7 @@
 #undef UNICODE
+#define _CRE_SECURE_NO_WARNINGS
 #include <Windows.h>
+#include <stdio.h>
 
 CONST CHAR g_sz_CLASS_NAME[] = "Main Window PV=522";//Name Class window
 
@@ -51,6 +53,12 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR ipCmdLine, IN
 	/*
 	2.	Создание окна:
 	*/
+	INT screen_width = GetSystemMetrics(SM_CXSCREEN);
+	INT screen_height = GetSystemMetrics(SM_CYSCREEN);
+	INT windows_width = screen_width * 3 / 4;
+	INT windows_height = screen_height * 3 / 4;
+	INT window_start_x = screen_width / 8;
+	INT window_start_y = screen_height / 8;
 	HWND hwnd = CreateWindowEx
 	(
 		NULL,// exStyles
@@ -58,8 +66,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR ipCmdLine, IN
 		g_sz_CLASS_NAME, // Window title
 		WS_OVERLAPPEDWINDOW,// Стиль окна. Набор стилей всегда зависит от класса окна
 		//Стиль главного окна ЦWS_OVERLAPPEDWINDOW
-		CW_USEDEFAULT, CW_USEDEFAULT, // Начальная позиция окна (при запуске)
-		CW_USEDEFAULT, CW_USEDEFAULT, //Размер окна
+		window_start_x, window_start_y, // Начальная позиция окна (при запуске)
+		windows_width, windows_height, //Размер окна
 		NULL,	// Parent Window
 		NULL,	//hMenu. Для главного окна этот определяет главное меню.
 		//		Для дочернего окна (Control)  это параметр содержит ResourseID дочернего окна.
@@ -70,7 +78,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR ipCmdLine, IN
 	if (hwnd == NULL)
 	{
 		MessageBox(NULL, "Window creation failed", NULL, MB_OK | MB_ICONERROR);
-			return 0;
+		return 0;
 	}
 	ShowWindow(hwnd, nCmdShow);
 	/*
@@ -91,6 +99,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		break;
+	case WM_SIZE:	
+	case WM_MOVE:
+	{
+		RECT rect;
+		GetWindowRect(hwnd,&rect);
+		CHAR sz_title[MAX_PATH]={};
+		sprintf_s(sz_title, "%s - Position: %ix%i, Size %ix%i", g_sz_CLASS_NAME, rect.left, rect.top, rect.right-rect.left, rect.bottom- rect.top);
+		SendMessage(hwnd, WM_SETTEXT, 0, (LPARAM)sz_title);
+	}
 	case WM_COMMAND:
 		break;
 	case WM_DESTROY:
