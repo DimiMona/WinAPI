@@ -13,6 +13,9 @@
 #define g_i_BUTTON_START_X		g_i_START_X
 #define g_i_BUTTON_START_Y		g_i_START_Y + g_i_DISPLAY_HEIGHT + g_i_INTERVAL
 
+#define g_i_WINDOW_WIDTH		g_i_DISPLAY_WIDTH + g_i_START_X * 2 + 16
+#define g_i_WINDOW_HEIGTH		g_i_DISPLAY_HEIGHT + g_i_START_Y * 2 + (g_i_BUTTON_SIZE + g_i_INTERVAL) * 4 + 38 // это высота строки заголовка
+
 #define BUTTON_X_POSITION(SHIFT)	g_i_BUTTON_START_X + (g_i_BUTTON_SIZE + g_i_INTERVAL) * (SHIFT)
 #define BUTTON_Y_POSITION(SHIFT)	g_i_BUTTON_START_Y + (g_i_BUTTON_SIZE + g_i_INTERVAL) * (SHIFT)
 
@@ -53,9 +56,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, IN
 		NULL, //ExStyle
 		g_sz_WINDOW_CLASS, //Window class
 		g_sz_WINDOW_CLASS, //Window title
-		WS_OVERLAPPEDWINDOW, //Window Style
-		CW_USEDEFAULT, CW_USEDEFAULT, //Prosition
-		CW_USEDEFAULT, CW_USEDEFAULT, //Size
+		WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX, //Window Style
+		CW_USEDEFAULT, CW_USEDEFAULT,//Prosition
+		g_i_WINDOW_WIDTH, g_i_WINDOW_HEIGTH, //Size		 
 		NULL,//Parent Window
 		NULL,//hMenu
 		hInstance,
@@ -145,7 +148,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				BUTTON_X_POSITION(3), BUTTON_Y_POSITION(i),
 				g_i_BUTTON_SIZE, g_i_BUTTON_SIZE,
 				hwnd,
-				HMENU(IDC_BUTTON_SLASH-i),
+				HMENU(IDC_BUTTON_SLASH - i),
 				GetModuleHandle(NULL),
 				NULL
 			);
