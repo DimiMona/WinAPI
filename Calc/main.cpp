@@ -199,6 +199,8 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		static INT		operation = 0;
 		static BOOL		input = FALSE;//Остлеживает ввод цыфры
 		static BOOL		input_operation = FALSE; //Отслеживает ввод операции +,-,*,/;
+		static BOOL		executed = FALSE;
+
 		CHAR sz_display[MAX_PATH] = {};
 		CHAR sz_digit[2] = {};
 		HWND hEditDisplay = GetDlgItem(hwnd, IDC_DISPLAY);
@@ -206,6 +208,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (LOWORD(wParam) >= IDC_BUTTON_0 && LOWORD(wParam) <= IDC_BUTTON_9)
 		{
 			input_operation = FALSE;
+			executed = FALSE;
 			if (input == FALSE)ZeroMemory(sz_display, sizeof(sz_display));
 			sz_digit[0] = LOWORD(wParam) - IDC_BUTTON_0 + '0';
 			if (sz_display[0] == '0' && sz_display[1] != '.')
@@ -248,6 +251,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				input = false;
 
 			}
+			if(!input_operation && !executed) SendMessage(hwnd, WM_COMMAND, LOWORD(IDC_BUTTON_EQUAL), 0);
 			operation = LOWORD(wParam);
 			input_operation = TRUE;
 		}
@@ -266,7 +270,8 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case IDC_BUTTON_SLASH:	a /= b; break;
 			}
 			input_operation = FALSE;
-			if (a != DBL_MIN)
+			executed = FALSE;
+;			if (a != DBL_MIN)
 			{
 				sprintf(sz_display, "%g", a);
 				SendMessage(hEditDisplay, WM_SETTEXT, 0, (LPARAM)sz_display);
