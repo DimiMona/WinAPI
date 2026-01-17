@@ -5,6 +5,8 @@
 #include<iostream>
 #include"resource.h"
 
+//#define DEBUG
+
 #define g_i_BUTTON_SIZE			50
 #define g_i_INTERVAL			 1
 #define g_i_DOUBLE_BUTTON_SIZE	g_i_BUTTON_SIZE * 2 + g_i_INTERVAL
@@ -85,8 +87,11 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
+	
+#ifdef DEBUG
 		AllocConsole();
-		freopen("CONOUT$", "w", stdout);
+#endif // DEBUG
+			freopen("CONOUT$", "w", stdout);
 		HWND hEdit = CreateWindowEx
 		(
 			NULL, "Edit", "0",
@@ -120,10 +125,10 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				);
 			}
 		}
-		CreateWindowEx
+		HWND hButton_0 = CreateWindowEx
 		(
 			NULL, "BUTTON", "0",
-			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
 			BUTTON_X_POSITION(0), BUTTON_Y_POSITION(3),
 			g_i_DOUBLE_BUTTON_SIZE, g_i_BUTTON_SIZE,
 			hwnd,
@@ -131,6 +136,15 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			GetModuleHandle(NULL),
 			NULL
 		);
+		HBITMAP bmpButton0 = (HBITMAP)LoadImage
+		(
+			GetModuleHandle(NULL),
+			"BUTTON_0.bmp",
+			IMAGE_BITMAP,
+			g_i_DOUBLE_BUTTON_SIZE, g_i_BUTTON_SIZE,
+			LR_LOADFROMFILE
+		);
+		SendMessage(hButton_0, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpButton0);
 		CreateWindowEx
 		(
 			NULL, "BUTTON", ".",
@@ -245,13 +259,21 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		if (LOWORD(wParam) >= IDC_BUTTON_PLUS && LOWORD(wParam) <= IDC_BUTTON_SLASH)
 		{
+#ifdef DEBUG
+			/*std::cout << "e:\n";
+		std::cout << "OPERATIONAL BUTTONS:\n";
+		std::cout << "Input: \t\t" << input << std::endl;
+		std::cout << "InputOperation: \t" << input_operation << std::endl;
+		std::cout << "Executed:\t" << input_operation << std::endl;*/
+#endif // DEBUG
+
 			if (input)
 			{
 				(a == DBL_MIN ? a : b) = atof(sz_display);
 				input = false;
 
 			}
-			if(!input_operation && !executed) SendMessage(hwnd, WM_COMMAND, LOWORD(IDC_BUTTON_EQUAL), 0);
+			if (!input_operation && !executed) SendMessage(hwnd, WM_COMMAND, LOWORD(IDC_BUTTON_EQUAL), 0);
 			operation = LOWORD(wParam);
 			input_operation = TRUE;
 		}
@@ -262,19 +284,24 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				(a == DBL_MIN ? a : b) = atof(sz_display);
 				input = false;
 			}
-			switch (operation)
+			else if (b == DBL_MIN) b = a;
+			else if (operation && a == DBL_MIN)a = atof(sz_display);
+			if (a != DBL_MIN && b != DBL_MIN && operation != 0)
 			{
-			case IDC_BUTTON_PLUS:	a += b; break;
-			case IDC_BUTTON_MINUS:	a -= b; break;
-			case IDC_BUTTON_ASTER:	a *= b; break;
-			case IDC_BUTTON_SLASH:	a /= b; break;
-			}
-			input_operation = FALSE;
-			executed = FALSE;
-;			if (a != DBL_MIN)
-			{
-				sprintf(sz_display, "%g", a);
-				SendMessage(hEditDisplay, WM_SETTEXT, 0, (LPARAM)sz_display);
+				switch (operation)
+				{
+				case IDC_BUTTON_PLUS:	a += b; break;
+				case IDC_BUTTON_MINUS:	a -= b; break;
+				case IDC_BUTTON_ASTER:	a *= b; break;
+				case IDC_BUTTON_SLASH:	a /= b; break;
+				}
+				input_operation = FALSE;
+				executed = TRUE;
+				if (a != DBL_MIN)
+				{
+					sprintf(sz_display, "%g", a);
+					SendMessage(hEditDisplay, WM_SETTEXT, 0, (LPARAM)sz_display);
+				}
 			}
 		}
 	}
@@ -283,7 +310,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		CHAR sz_key[8] = {};
 		sprintf(sz_key, "%i", wParam);
-		std::cout << sz_key << std::endl;
+		//std::cout << sz_key << std::endl;
 		//MessageBox(hwnd, sz_key, "Info", MB_OK);
 		if (GetKeyState(VK_SHIFT) < 0 && wParam == '8')
 		{
