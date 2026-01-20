@@ -25,6 +25,7 @@
 #define BUTTON_Y_POSITION(SHIFT)	g_i_BUTTON_START_Y + (g_i_BUTTON_SIZE + g_i_INTERVAL) * (SHIFT)
 
 CONST CHAR g_OPERATIONS[] = "+-*/";
+CONST CHAR* g_SKINS[] = { "metal_mistral", "square_blue" };
 
 CONST CHAR g_sz_WINDOW_CLASS[] = "Calc PV_522";
 LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -88,11 +89,11 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 	{
-	
+
 #ifdef DEBUG
 		AllocConsole();
 #endif // DEBUG
-			freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stdout);
 		HWND hEdit = CreateWindowEx
 		(
 			NULL, "Edit", "0",
@@ -206,7 +207,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			GetModuleHandle(NULL),
 			NULL
 		);
-		SetSkin(hwnd,"square_blue");
+		SetSkin(hwnd, "square_blue");
 	}
 	break;
 	case WM_COMMAND:
@@ -410,6 +411,27 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	break;
+	case WM_CONTEXTMENU:
+	{
+		HMENU hMenu = CreatePopupMenu();
+		InsertMenu(hMenu, 0, MF_BYPOSITION | MF_STRING, IDR_EXIT, "Exit");
+		InsertMenu(hMenu, 0, MF_BYPOSITION | MF_STRING, NULL, NULL);
+		InsertMenu(hMenu, 0, MF_BYPOSITION | MF_STRING, IDR_METAL_MISTRAL, "Metal mistral");
+		InsertMenu(hMenu, 0, MF_BYPOSITION | MF_STRING, IDR_SQUARE_BLUE, "Square blue");
+		INT item = TrackPopupMenuEx(hMenu, TPM_RIGHTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON | TPM_HORNEGANIMATION | TPM_VERNEGANIMATION | TPM_RETURNCMD,
+			LOWORD(lParam), HIWORD(lParam),
+			(HWND)wParam,
+			NULL
+		);
+		switch (item)
+		{
+		case IDR_SQUARE_BLUE:	SetSkin(hwnd, "square_blue"); break;
+		case IDR_METAL_MISTRAL: SetSkin(hwnd, "metal_mistral"); break;
+		case IDR_EXIT:			SendMessage(hwnd, WM_CLOSE,0,0);
+		}
+		DestroyMenu(hMenu);
+	}
+	break;
 	case WM_DESTROY:
 		FreeConsole();
 		PostQuitMessage(0);
@@ -456,7 +478,7 @@ VOID SetSkin(HWND hwnd, CONST CHAR sz_skin[])
 			sz_filename,
 			IMAGE_BITMAP,
 			i > 0 ? g_i_BUTTON_SIZE : g_i_DOUBLE_BUTTON_SIZE,
-			i < 17 ? g_i_BUTTON_SIZE:g_i_DOUBLE_BUTTON_SIZE,
+			i < 17 ? g_i_BUTTON_SIZE : g_i_DOUBLE_BUTTON_SIZE,
 			LR_LOADFROMFILE
 		);
 		SendMessage(hButton, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpButton);
