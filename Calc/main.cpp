@@ -210,6 +210,21 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetSkin(hwnd, "square_blue");
 	}
 	break;
+	case WM_CTLCOLOREDIT:
+	{
+		HDC hdc = (HDC)wParam; //Контекст устройства это набор ресурсов, привязапнных к определенному  устройству,
+		// позволяющий применять к этому устройству графические функции.
+		// В ОС Windows абсолютно для любого окна можно получить контекст устройства при помощи функции GetDC(HWND)
+		SetBkMode(hdc, OPAQUE); //Задаем непрозрачный режим отбражения hEditDisplay.
+		SetBkColor(hdc, RGB(0, 0, 200)); //Задает цвет фона для EditControl
+		SetTextColor(hdc,RGB(200,200,200)); // Задает цвет текста для EditControl
+		HBRUSH hBackground = CreateSolidBrush(RGB(0, 0, 100));//Создаем кисть для того чтобы покрасить главное окно 
+		SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground); // Подменяем цвет фона в классе главного окна
+		//UpdateWindow(hwnd);
+		SendMessage(hwnd, WM_ERASEBKGND, wParam, 0); //Убираем старый фон с главного окна 
+
+	}
+		break;
 	case WM_COMMAND:
 	{
 		static DOUBLE	a = DBL_MIN, b = DBL_MIN; //минимально возможно значение
