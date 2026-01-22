@@ -229,6 +229,7 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			////SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground); // Подменяем цвет фона в классе главного окна
 			////UpdateWindow(hwnd);
 			////SendMessage(hwnd, WM_ERASEBKGND, wParam, 0); //Убираем старый фон с главного окна 
+
 		HDC hdc = (HDC)wParam;
 		SetBkMode(hdc, OPAQUE);
 
