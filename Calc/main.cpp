@@ -27,9 +27,14 @@
 CONST CHAR g_OPERATIONS[] = "+-*/";
 CONST CHAR* g_SKINS[] = { "metal_mistral", "square_blue" };
 
+static HBRUSH g_hEditBrush = NULL;
+static HBRUSH g_hWindowBrush = NULL;
+BOOL g_isBlueSkin = TRUE;
+
 CONST CHAR g_sz_WINDOW_CLASS[] = "Calc PV_522";
 LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 VOID SetSkin(HWND hwnd, CONST CHAR sz_skin[]);
+
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, INT nCmdShow)
 {
 	//1) Регистрация класса окна:
@@ -212,17 +217,39 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_CTLCOLOREDIT:
 	{
-		HDC hdc = (HDC)wParam; //Контекст устройства это набор ресурсов, привязапнных к определенному  устройству,
-		// позволяющий применять к этому устройству графические функции.
-		// В ОС Windows абсолютно для любого окна можно получить контекст устройства при помощи функции GetDC(HWND)
-		SetBkMode(hdc, OPAQUE); //Задаем непрозрачный режим отбражения hEditDisplay.
-		SetBkColor(hdc, RGB(0, 0, 200)); //Задает цвет фона для EditControl
-		SetTextColor(hdc,RGB(200,200,200)); // Задает цвет текста для EditControl
-		HBRUSH hBackground = CreateSolidBrush(RGB(0, 0, 100));//Создаем кисть для того чтобы покрасить главное окно 
-		SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground); // Подменяем цвет фона в классе главного окна
-		//UpdateWindow(hwnd);
-		SendMessage(hwnd, WM_ERASEBKGND, wParam, 0); //Убираем старый фон с главного окна 
+		
+			////SetSkin(hwnd, "square_blue");
+			//HDC hdc = (HDC)wParam; //Контекст устройства это набор ресурсов, привязапнных к определенному  устройству,
+			//// позволяющий применять к этому устройству графические функции.
+			//// В ОС Windows абсолютно для любого окна можно получить контекст устройства при помощи функции GetDC(HWND)
+			//SetBkMode(hdc, OPAQUE); //Задаем непрозрачный режим отбражения hEditDisplay.
+			//SetBkColor(hdc, RGB(0, 0, 200)); //Задает цвет фона для EditControl
+			//SetTextColor(hdc, RGB(200, 200, 200)); // Задает цвет текста для EditControl
+			//HBRUSH hBackground = CreateSolidBrush(RGB(0, 0, 100));//Создаем кисть для того чтобы покрасить главное окно 
+			////SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground); // Подменяем цвет фона в классе главного окна
+			////UpdateWindow(hwnd);
+			////SendMessage(hwnd, WM_ERASEBKGND, wParam, 0); //Убираем старый фон с главного окна 
+		HDC hdc = (HDC)wParam;
+		SetBkMode(hdc, OPAQUE);
 
+		
+		if (g_isBlueSkin)
+		{
+			SetBkColor(hdc, RGB(0, 0, 200));
+			SetTextColor(hdc, RGB(200, 200, 200));
+			HBRUSH hBackground = CreateSolidBrush(RGB(0, 0, 100));
+			SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground);
+			SendMessage(hwnd, WM_ERASEBKGND, wParam, 0);
+		}
+		else
+		{
+			SetBkColor(hdc, RGB(100, 100, 100));
+			SetTextColor(hdc, RGB(255, 255, 255));
+			HBRUSH hBackground = CreateSolidBrush(RGB(200, 0, 0));
+			SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG)hBackground);
+			SendMessage(hwnd, WM_ERASEBKGND, wParam, 0);
+		}		
+		
 	}
 		break;
 	case WM_COMMAND:
@@ -448,6 +475,9 @@ LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_DESTROY:
+
+	
+
 		FreeConsole();
 		PostQuitMessage(0);
 		break;
@@ -496,6 +526,42 @@ VOID SetSkin(HWND hwnd, CONST CHAR sz_skin[])
 			i < 17 ? g_i_BUTTON_SIZE : g_i_DOUBLE_BUTTON_SIZE,
 			LR_LOADFROMFILE
 		);
-		SendMessage(hButton, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpButton);
+		if (bmpButton)
+		{
+			// Получаем старый битмап
+			HBITMAP hOldBmp = (HBITMAP)SendMessage(hButton, BM_GETIMAGE,
+				IMAGE_BITMAP, 0);
+
+			// Устанавливаем новый
+			SendMessage(hButton, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)bmpButton);
+
+			
+		}
+		// Меняем цветовую схему
+		if (strcmp(sz_skin, "square_blue") == 0)
+		{
+			g_isBlueSkin = TRUE;
+		}
+		else if (strcmp(sz_skin, "metal_mistral") == 0)
+		{
+			g_isBlueSkin = FALSE;
+		}
+
+		if (g_isBlueSkin)
+		{
+			g_hEditBrush = CreateSolidBrush(RGB(0, 0, 200));
+			g_hWindowBrush = CreateSolidBrush(RGB(0, 0, 100));
+		}
+		else
+		{
+			g_hEditBrush = CreateSolidBrush(RGB(100, 100, 100));
+			g_hWindowBrush = CreateSolidBrush(RGB(70, 70, 70));
+		}
+
+		// Перерисовываем окно
+		InvalidateRect(hwnd, NULL, TRUE);
+		UpdateWindow(hwnd);
+
 	}
+
 }
